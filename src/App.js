@@ -1,7 +1,11 @@
 import React, { Component } from "react";
-import store from "./store";
+import store, { loadClients, loadSkills } from "./store";
 import { connect } from "react-redux";
-// import { HashRouter as Router, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Route } from "react-router-dom";
+import Clients_All from "./Clients_All";
+import Skills_All from "./Skills_All";
+import Client_Single from "./Client_Single";
+import Skill_Single from "./Skill_Single";
 
 class App extends Component {
   constructor() {
@@ -10,52 +14,36 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    // store.dispatch(loadLeagues());
+    store.dispatch(loadClients());
+    store.dispatch(loadSkills());
 
-    store.subscribe(() => {
-      this.setState(store.getState());
-    });
+    this.unsubscribe = store.subscribe(() => this.setState(store.getState()));
+  }
+
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps !== this.props) {
+  //     store.subscribe(() => this.setState(store.getState()));
+  //   }
+  // }
+
+  componentWillMount() {
+    store.subscribe(() => this.setState(store.getState()));
   }
 
   render() {
-    return <div></div>;
+    return (
+      <Router>
+        <h1>Acme Talent Agency</h1>
+
+        <div className="home-cont">
+          <Route component={Clients_All} path="/" exact />
+          <Route component={Skills_All} path="/" exact />
+          <Route component={Client_Single} path="/clients/:id" exact />
+          <Route component={Skill_Single} path="/skills/:id" exact />
+        </div>
+      </Router>
+    );
   }
 }
 
-const mapStateToProps = (state) => state;
-
-// const mapDispatchToProps = (dispatch) => {
-//   return {
-//     selectATeam: (id) => {
-//       dispatch(selectTeam(id));
-//     },
-//   };
-// };
-
-export default connect(mapStateToProps)(App);
-
-//router language below:
-
-// render() {
-//   return (
-//     <Router>
-//       <div>
-//         <h1>Acme Users</h1>
-//         <Route component={Nav} />
-//         <Route component={Users} path="/users" exact />
-//         <Route component={User} path="/users/:id" exact />
-//       </div>
-//     </Router>
-//   );
-// }
-
-// const Nav = ({create, users, location: {pathname}}) => {
-//   return (
-//       <nav>
-//         <Link to='/' className={pathname === '/' ? 'selected' : ''}>Home</Link>
-//         <Link to='/users' className={pathname === '/users' ? 'selected' : ''}>Users ({users.length})</Link>
-//         <button onClick={() => create(faker.name.firstName())}>Create</button>
-//       </nav>
-//   )
-
-// }
+export default connect((state) => state)(App);
